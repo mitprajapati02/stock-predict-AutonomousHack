@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Prediction System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .upload-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input[type="file"] {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            background: white;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .inline-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results {
+            display: none;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+        }
+
+        .metric-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .status-high {
+            background: #ff4757;
+            color: white;
+        }
+
+        .status-normal {
+            background: #2ed573;
+            color: white;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #ff4757;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Sales Prediction System</h1>
+        <p class="subtitle">Upload your sales data and get AI-powered predictions</p>
+
+        <div class="error" id="error"></div>
+
+        <div class="upload-section">
+            <form id="predictionForm">
+                <div class="form-group">
+                    <label for="csvFile">Upload Sales Dataset (CSV)</label>
+                    <input type="file" id="csvFile" accept=".csv" required>
+                    <small style="color: #666; display: block; margin-top: 5px;">
+                        Required columns: product_category, product_id, transaction_qty, transaction_date
+                    </small>
+                </div>
+
+                <div class="inline-inputs">
+                    <div class="form-group">
+                        <label for="targetYear">Target Year</label>
+                        <input type="number" id="targetYear" value="2024" min="2020" max="2030" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="targetMonth">Target Month</label>
+                        <input type="number" id="targetMonth" value="6" min="1" max="12" required>
+                    </div>
+                </div>
+
+                <button type="submit">Generate Predictions</button>
+            </form>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Processing your data and training the model...</p>
+        </div>
+
+        <div class="results" id="results">
+            <h2>📈 Prediction Results</h2>
+            
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Total Products</div>
+                    <div class="metric-value" id="totalProducts">-</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">High Stock Required</div>
+                    <div class="metric-value" id="highStock">-</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Model Accuracy (R²)</div>
+                    <div class="metric-value" id="r2Score">-</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Avg Change %</div>
+                    <div class="metric-value" id="avgChange">-</div>
+                </div>
+            </div>
+
+            <h3>Product Predictions</h3>
+            <div style="overflow-x: auto;">
+                <table id="predictionsTable">
+                    <thead>
+                        <tr>
+                            <th>Product ID</th>
+                            <th>Category</th>
+                            <th>Previous Sales</th>
+                            <th>Predicted Sales</th>
+                            <th>Change %</th>
+                            <th>Stock Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+
+        document.getElementById('predictionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Get form data
+            const fileInput = document.getElementById('csvFile');
+            const targetYear = document.getElementById('targetYear').value;
+            const targetMonth = document.getElementById('targetMonth').value;
+
+            if (!fileInput.files[0]) {
+                showError('Please select a CSV file');
+                return;
+            }
+
+            // Prepare form data
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('target_year', targetYear);
+            formData.append('target_month', targetMonth);
+
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+
+            try {
+                // Call API
+                const response = await fetch(`${API_URL}/predict-sales`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.detail || 'Prediction failed');
+                }
+
+                // Display results
+                displayResults(data);
+
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        });
+
+        function displayResults(data) {
+            // Update metrics
+            document.getElementById('totalProducts').textContent = data.summary.total_products;
+            document.getElementById('highStock').textContent = data.summary.high_stock_required;
+            document.getElementById('r2Score').textContent = data.model_metrics.r2;
+            document.getElementById('avgChange').textContent = data.summary.avg_change_percentage.toFixed(2) + '%';
+
+            // Update table
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            data.predictions.forEach(pred => {
+                const row = document.createElement('tr');
+                const statusClass = pred.stock_status === 'HIGH STOCK REQUIRED' ? 'status-high' : 'status-normal';
+                
+                row.innerHTML = `
+                    <td>${pred.product_id}</td>
+                    <td>${pred.product_category}</td>
+                    <td>${pred.previous_month_sales.toFixed(2)}</td>
+                    <td>${pred.predicted_sales.toFixed(2)}</td>
+                    <td>${pred.stock_change_pct ? pred.stock_change_pct.toFixed(2) + '%' : 'N/A'}</td>
+                    <td><span class="status-badge ${statusClass}">${pred.stock_status}</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Show results
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = '❌ Error: ' + message;
+            errorDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
