@@ -150,8 +150,9 @@ async def predict_stock(
         high_stock_count = len([p for p in predictions if p["stockStatus"] == "HIGH STOCK REQUIRED"])
         avg_growth = sum(p["growthPercentage"] for p in predictions) / len(predictions) if predictions else 0
         
+        # 📈 Strong demand surge detected! Average growth of {avg_growth:.1f}%.
         if avg_growth > 50:
-            insight = f"📈 Strong demand surge detected! Average growth of {avg_growth:.1f}%. Consider increasing stock by 30-50% for {high_stock_count} high-demand products."
+            insight = f" Consider increasing stock by 30-50% for {high_stock_count} high-demand products."
         elif avg_growth > 20:
             insight = f"📊 Moderate growth expected ({avg_growth:.1f}% increase). Keep {high_stock_count} products well-stocked to meet demand."
         elif avg_growth > 0:

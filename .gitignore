@@ -1,0 +1,57 @@
+############################
+# 🔐 ENV FILES (SECRETS)
+############################
+.env
+.env.*
+!.env.example
+
+############################
+# 🐍 PYTHON (FastAPI)
+############################
+fastapi/venv/
+fastapi/__pycache__/
+fastapi/**/*.pyc
+fastapi/**/*.pyo
+fastapi/**/*.pyd
+fastapi/.pytest_cache/
+fastapi/.mypy_cache/
+fastapi/.ruff_cache/
+
+############################
+# ⚛️ frontend (VITE / REACT)
+############################
+predictStoke/node_modules/
+predictStoke/dist/
+predictStoke/.vite/
+predictStoke/.cache/
+
+############################
+# 🧪 TEST / COVERAGE
+############################
+coverage/
+*.coverage
+
+############################
+# 🐳 DOCKER
+############################
+**/.dockerignore
+**/*.env
+docker-compose.override.yml
+
+############################
+# 🧠 EDITORS / OS
+############################
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+############################
+# 📦 LOGS
+############################
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
