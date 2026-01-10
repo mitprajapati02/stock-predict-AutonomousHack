@@ -1,14 +1,39 @@
 import React, { useState } from 'react';
+import { useEffect } from 'react';
 
 const StockPredictionApp = () => {
   const [predictionType, setPredictionType] = useState('all');
   const [productId, setProductId] = useState('');
-  const [selectedMonth, setSelectedMonth] = useState('March 2026');
+
   const [uploadedFile, setUploadedFile] = useState(null);
-  const [predictions, setPredictions] = useState(null);
+  const [predictions, setPredictions] = useState([]);
   const [insight, setInsight] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+
+  // Generate years dynamically (current year → next 10 years)
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 10 }, (_, i) => currentYear + i);
+
+  const [selectedMonth, setSelectedMonth] = useState("");
+  const [selectedYear, setSelectedYear] = useState("");
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10; // change if you want
+
+  const totalPages = Math.ceil(predictions.length / itemsPerPage);
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentPredictions = predictions.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
+
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
@@ -36,9 +61,10 @@ const StockPredictionApp = () => {
     try {
       // FormData for file upload
       const formData = new FormData();
+      const combinedMonth = `${selectedMonth} ${selectedYear}`;
       formData.append("file", uploadedFile);
       formData.append("predictionType", predictionType);
-      formData.append("month", selectedMonth);
+      formData.append("month", combinedMonth);
       formData.append("productId", productId || "");
 
       // API Request
@@ -53,7 +79,7 @@ const StockPredictionApp = () => {
       }
 
       const data = await response.json();
-      
+
       setPredictions(data.predictions);
       setInsight(data.insight);
 
@@ -271,14 +297,43 @@ const StockPredictionApp = () => {
     stockNormal: {
       background: '#d1fae5',
       color: '#065f46'
+    },
+    pagination: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginTop: '25px',
+      gap: '15px'
+    },
+    pageButton: {
+      padding: '8px 16px',
+      borderRadius: '6px',
+      border: '1px solid #ddd',
+      background: 'white',
+      cursor: 'pointer',
+      fontWeight: '600'
+    },
+    pageButtonDisabled: {
+      opacity: 0.5,
+      cursor: 'not-allowed'
+    },
+    pageInfo: {
+      fontSize: '14px',
+      fontWeight: '600',
+      color: '#444'
     }
+
   };
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [predictions]);
+
 
   return (
     <div style={styles.container}>
       <div style={styles.card}>
         <div style={styles.header}>
-          <h1 style={styles.title}>📊 Stock Prediction Dashboard</h1>
+          <h1 style={styles.title}>Stock Prediction Dashboard</h1>
           <p style={styles.subtitle}>AI-Powered Sales Forecasting for Smart Inventory Management</p>
         </div>
 
@@ -347,25 +402,34 @@ const StockPredictionApp = () => {
 
             <div style={styles.formGroup}>
               <label style={styles.label}>Target Month</label>
+
               <select
-                style={styles.select}
+                style={{ ...styles.select, marginBottom: '12px' }}
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(e.target.value)}
               >
-                <option>January 2026</option>
-                <option>February 2026</option>
-                <option>March 2026</option>
-                <option>April 2026</option>
-                <option>May 2026</option>
-                <option>June 2026</option>
-                <option>July 2026</option>
-                <option>August 2026</option>
-                <option>September 2026</option>
-                <option>October 2026</option>
-                <option>November 2026</option>
-                <option>December 2026</option>
+                <option value="">Select Month</option>
+                {months.map((month, index) => (
+                  <option key={index} value={month}>
+                    {month}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                style={styles.select}
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value)}
+              >
+                <option value="">Select Year</option>
+                {years.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
               </select>
             </div>
+
           </div>
 
           <button
@@ -376,7 +440,7 @@ const StockPredictionApp = () => {
             onClick={handleSubmit}
             disabled={loading}
           >
-            {loading ? '⏳ Processing...' : `🚀 Generate Prediction for ${selectedMonth}`}
+            {loading ? '⏳ Processing...' : ` Generate Prediction for ${selectedMonth}`}
           </button>
 
           {insight && (
@@ -390,44 +454,67 @@ const StockPredictionApp = () => {
               <h3 style={styles.resultsTitle}>
                 📈 Prediction Results for {selectedMonth}
               </h3>
-              {predictions.map((pred, idx) => (
+
+              {/* Result cards */}
+              {currentPredictions.map((pred, idx) => (
                 <div key={idx} style={styles.resultCard}>
                   <div style={styles.resultItem}>
                     <div style={styles.resultLabel}>Product ID</div>
                     <div style={styles.resultValue}>{pred.productId}</div>
-                    <div style={styles.resultLabel} style={{marginTop: '8px', fontSize: '11px'}}>
+                    <div
+                      style={{
+                        ...styles.resultLabel,
+                        marginTop: '8px',
+                        fontSize: '11px'
+                      }}
+                    >
                       {pred.productCategory}
                     </div>
                   </div>
+
                   <div style={styles.resultItem}>
                     <div style={styles.resultLabel}>Last Month</div>
                     <div style={styles.resultValue}>{pred.lastMonthSales}</div>
                   </div>
+
                   <div style={styles.resultItem}>
                     <div style={styles.resultLabel}>Predicted Sales</div>
                     <div style={styles.resultValue}>{pred.predictedSales}</div>
                   </div>
-                  <div style={styles.resultItem}>
-                    <div style={styles.resultLabel}>Growth</div>
-                    <div style={styles.resultValue}>
-                      <span style={{
-                        ...styles.badge,
-                        ...(pred.growthPercentage >= 0 ? styles.badgePositive : styles.badgeNegative)
-                      }}>
-                        {pred.growthPercentage >= 0 ? '+' : ''}{pred.growthPercentage}%
-                      </span>
-                    </div>
-                    <div style={{
-                      ...styles.stockBadge,
-                      ...(pred.stockStatus === 'HIGH STOCK REQUIRED' ? styles.stockHigh : styles.stockNormal)
-                    }}>
-                      {pred.stockStatus}
-                    </div>
-                  </div>
                 </div>
               ))}
+
+              {/* ✅ Pagination (ONLY ONCE) */}
+              <div style={styles.pagination}>
+                <button
+                  style={{
+                    ...styles.pageButton,
+                    ...(currentPage === 1 && styles.pageButtonDisabled)
+                  }}
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                  disabled={currentPage === 1}
+                >
+                  ◀ Prev
+                </button>
+
+                <span style={styles.pageInfo}>
+                  Page {currentPage} of {totalPages}
+                </span>
+
+                <button
+                  style={{
+                    ...styles.pageButton,
+                    ...(currentPage === totalPages && styles.pageButtonDisabled)
+                  }}
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  Next ▶
+                </button>
+              </div>
             </div>
           )}
+
         </div>
       </div>
     </div>
