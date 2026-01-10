@@ -102,24 +102,24 @@ const StockPredictionApp = () => {
       */
 
       // 🔁 Replace with real API later
-      const response = await fetch("http://127.0.0.1:8000/api/debug", {
-        method: "POST",
-        body: formData,
-      });
+      // const response = await fetch("http://127.0.0.1:8000/api/debug", {
+      //   method: "POST",
+      //   body: formData,
+      // });
 
-      const data = await response.json();
+      // const data = await response.json();
 
-      // const data = {
-      //   predictions: [
-      //     {
-      //       productId: productId || "P101",
-      //       lastMonthSales: 120,
-      //       predictedSales: 144,
-      //       growthPercentage: 20
-      //     }
-      //   ],
-      //   insight: "Demand is increasing. Keep 20% extra stock."
-      // };
+      const data = {
+        predictions: [
+          {
+            productId: productId || "P101",
+            lastMonthSales: 120,
+            predictedSales: 144,
+            growthPercentage: 20
+          }
+        ],
+        insight: "Demand is increasing. Keep 20% extra stock."
+      };
 
       setPredictions(data.predictions);
       // setAiInsight(data.insight);
