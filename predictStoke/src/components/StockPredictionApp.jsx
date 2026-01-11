@@ -48,7 +48,7 @@ const StockPredictionApp = () => {
       body: [
         ["Total Products", reportData.totalProducts],
         ["High Stock Required", reportData.metadata.highStockRequired],
-        ["Average Growth (%)", reportData.metadata.averageGrowth.toFixed(2)],
+        // ["Average Growth (%)", reportData.metadata.averageGrowth.toFixed(2)],
         ["MAE", reportData.metadata.modelMetrics.mae],
         ["RMSE", reportData.metadata.modelMetrics.rmse],
         ["R² Score", reportData.metadata.modelMetrics.r2],
@@ -64,7 +64,6 @@ const StockPredictionApp = () => {
       p.productCategory,
       p.lastMonthSales,
       p.predictedSales.toFixed(2),
-      `${p.growthPercentage.toFixed(2)}%`,
     ]);
 
     autoTable(doc, {
@@ -76,7 +75,7 @@ const StockPredictionApp = () => {
           "Category",
           "Last Month Sales",
           "Predicted Sales",
-          "Growth %",
+          // "Growth %",
         ],
       ],
       body: tableData,

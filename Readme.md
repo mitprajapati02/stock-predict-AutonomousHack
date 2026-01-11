@@ -78,7 +78,6 @@ pip install -r requirements.txt
 **To Start Development Server:**
 
 ```bash
-npm run dev
 uvicorn main:app --reload
 
 ```
