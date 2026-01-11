@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import { useEffect } from 'react';
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+
+
 
 const StockPredictionApp = () => {
   const [predictionType, setPredictionType] = useState('all');
@@ -10,6 +14,80 @@ const StockPredictionApp = () => {
   const [insight, setInsight] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [reportData, setReportData] = useState(null);
+  // reportData = full backend response
+
+  const exportToPDF = () => {
+    if (!reportData) return;
+
+    const doc = new jsPDF();
+
+    doc.setFontSize(16);
+    doc.text("Stock Prediction Report", 14, 15);
+
+    doc.setFontSize(11);
+    doc.text(
+      `Target Month: ${reportData.targetMonth} (${reportData.targetYear})`,
+      14,
+      25
+    );
+
+    doc.setFontSize(12);
+    doc.text("AI Insight:", 14, 35);
+
+    doc.setFontSize(10);
+    doc.text(reportData.insight, 14, 42, { maxWidth: 180 });
+
+    doc.setFontSize(12);
+    doc.text("Summary", 14, 60);
+
+    autoTable(doc, {
+      startY: 65,
+      theme: "grid",
+      head: [["Metric", "Value"]],
+      body: [
+        ["Total Products", reportData.totalProducts],
+        ["High Stock Required", reportData.metadata.highStockRequired],
+        ["Average Growth (%)", reportData.metadata.averageGrowth.toFixed(2)],
+        ["MAE", reportData.metadata.modelMetrics.mae],
+        ["RMSE", reportData.metadata.modelMetrics.rmse],
+        ["R² Score", reportData.metadata.modelMetrics.r2],
+      ],
+    });
+
+    doc.addPage();
+    doc.setFontSize(14);
+    doc.text("Product-wise Predictions", 14, 15);
+
+    const tableData = reportData.predictions.map((p) => [
+      p.productId,
+      p.productCategory,
+      p.lastMonthSales,
+      p.predictedSales.toFixed(2),
+      `${p.growthPercentage.toFixed(2)}%`,
+    ]);
+
+    autoTable(doc, {
+      startY: 20,
+      theme: "striped",
+      head: [
+        [
+          "Product ID",
+          "Category",
+          "Last Month Sales",
+          "Predicted Sales",
+          "Growth %",
+        ],
+      ],
+      body: tableData,
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [16, 185, 129] },
+    });
+
+    doc.save(`Stock_Prediction_${reportData.targetMonth}.pdf`);
+  };
+
+
 
   const months = [
     "January", "February", "March", "April", "May", "June",
@@ -79,7 +157,8 @@ const StockPredictionApp = () => {
       }
 
       const data = await response.json();
-
+      console.log("Prediction data:", data);
+      setReportData(data); // Store full response for PDF export
       setPredictions(data.predictions);
       setInsight(data.insight);
 
@@ -96,7 +175,7 @@ const StockPredictionApp = () => {
       minHeight: '100vh',
       padding: '20px',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      background: '#f5f5f5'
+      background: 'rgb(255 117 117)'
     },
     card: {
       maxWidth: '900px',
@@ -124,10 +203,12 @@ const StockPredictionApp = () => {
       opacity: '0.7'
     },
     content: {
-      padding: '30px'
+      padding: '30px',
+      background: 'rgb(228 228 228)'
     },
     section: {
-      marginBottom: '28px'
+      marginBottom: '28px',
+
     },
     sectionTitle: {
       fontSize: '18px',
@@ -448,7 +529,20 @@ const StockPredictionApp = () => {
               <strong>💡 AI Insight:</strong> {insight}
             </div>
           )}
-
+          {reportData && (<button
+            onClick={exportToPDF}
+            style={{
+              background: "#10b981",
+              color: "#fff",
+              padding: "10px 16px",
+              borderRadius: "6px",
+              fontWeight: "600",
+              marginTop: "16px",
+              cursor: "pointer",
+            }}
+          >
+            Export as PDF
+          </button>)}
           {predictions && predictions.length > 0 && (
             <div style={styles.resultsContainer}>
               <h3 style={styles.resultsTitle}>
