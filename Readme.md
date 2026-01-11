@@ -14,27 +14,24 @@ This project is a functional MVP with core prediction features complete. Users c
 
 ### Main Dashboard - Upload & Configuration
 
-![Dashboard Screenshot]
+
 <img width="1900" height="1074" alt="localhost_5173_ (1)" src="https://github.com/user-attachments/assets/a0ee0c8d-adc3-41a7-9558-69934c9659a3" />
 
 
 ### Upload & Configuration
 
-![Results Screenshot]
+
 <img width="1900" height="1026" alt="localhost_5173_" src="https://github.com/user-attachments/assets/12a3efd8-2d9d-4625-8671-5262a658648f" />
 
 
 ### Prediction Results View & PDF Export Feature
 
-![PDF Export Screenshot]
 <img width="1920" height="1020" alt="Screenshot 2026-01-11 071634" src="https://github.com/user-attachments/assets/7bf5271b-6a99-4636-966b-3a8040ead9e6" />
 
 
 ### Mobile Responsive Design
 
-![Mobile Screenshot]
-<img width="1290" height="2964" alt="localhost_5173_(iPhone 14 Pro Max)" src="https://github.com/user-attachments/assets/847ec3cd-bc2c-468a-a306-983619ed88fa" />
-.png)
+<img  height="800" alt="localhost_5173_(iPhone 14 Pro Max)" src="https://github.com/user-attachments/assets/847ec3cd-bc2c-468a-a306-983619ed88fa" />
 
 
 ## Installation and Setup Instructions
